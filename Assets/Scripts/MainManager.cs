@@ -9,8 +9,12 @@ public class MainManager : MonoBehaviour
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
+    public int highScore;
+    public string championName;
+    private string playerName;
 
     public Text ScoreText;
+    public Text HighScore;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,10 +22,23 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+    private InformationHandler informationHandler;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
+        informationHandler = GameObject.Find("InformationHandler").GetComponent<InformationHandler>();
+        playerName = informationHandler.playerName;
+
+        informationHandler.LoadHighScore();
+
+        highScore = informationHandler.highScore;
+        championName = informationHandler.championName;
+
+        ScoreText.text = $"Name:{playerName} Score :{m_Points}";
+        HighScore.text = $"High Score:" + highScore + " by "+championName;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -65,12 +82,22 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $"Name:{playerName} Score :{m_Points}";
+        if(m_Points>highScore)
+        {
+            HighScore.text = $"High Score:" + m_Points+ " by " + playerName;
+
+        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
+        if (m_Points > highScore)
+        {
+            informationHandler.SaveHighScore(m_Points,playerName);
+
+        }
         GameOverText.SetActive(true);
     }
 }
